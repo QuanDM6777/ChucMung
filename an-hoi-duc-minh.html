@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đặng Đức Minh & Nguyễn Thị Hồng Nhung — 02.06.2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Noto+Serif+Display:ital,wght@0,300;1,300&display=swap');
+
+:root {
+  --black: #050508;
+  --deep-navy: #070d1a;
+  --midnight: #0a1628;
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-pale: #f5e4b0;
+  --white: #f0ece4;
+  --white-dim: rgba(240,236,228,0.7);
+  --blue-glow: #1a3a6e;
+  --accent-blue: #4a7fcb;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Cormorant Garamond', serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+.cursor {
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(201,168,76,0.5);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.25s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+}
+
+/* CANVAS */
+#particles-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.4;
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  z-index: 1000;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px var(--gold);
+}
+
+/* ===================== SCENE STRUCTURE ===================== */
+.scene {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ===================== SCENE 0 — INTRO ===================== */
+#scene-intro {
+  background: #000;
+  z-index: 10;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  flex-direction: column;
+  transition: opacity 1.5s ease, visibility 1.5s ease;
+}
+#scene-intro.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-content {
+  text-align: center;
+  padding: 2rem;
+  max-width: 700px;
+}
+
+.intro-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  color: var(--white-dim);
+  line-height: 1.9;
+  opacity: 0;
+  letter-spacing: 0.02em;
+}
+
+.intro-line .typed-text { display: inline; }
+.intro-line .cursor-blink {
+  display: inline-block;
+  width: 2px; height: 1em;
+  background: var(--gold);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 0.9s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.intro-subtitle {
+  margin-top: 3rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeInUp 1s ease 0.5s forwards;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.enter-btn {
+  margin-top: 3.5rem;
+  padding: 0.9rem 3rem;
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.4);
+  color: var(--gold-light);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  cursor: none;
+  opacity: 0;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.enter-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
+  transition: left 0.6s ease;
+}
+.enter-btn:hover::before { left: 100%; }
+.enter-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 30px rgba(201,168,76,0.2);
+}
+.enter-btn.visible { opacity: 1; }
+
+/* ===================== MAIN SCROLL CONTENT ===================== */
+#main-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===================== SCENE 1 — DARK DAYS ===================== */
+#scene-dark {
+  background: linear-gradient(180deg, var(--black) 0%, #090510 100%);
+  flex-direction: column;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.section-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: rgba(201,168,76,0.5);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+.section-eyebrow.reveal { opacity: 1; transform: translateY(0); }
+
+.scene-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(2rem, 7vw, 5rem);
+  line-height: 1.15;
+  color: var(--white);
+  max-width: 800px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 1s ease 0.2s;
+}
+.scene-title.reveal { opacity: 1; transform: translateY(0); }
+
+.scene-body {
+  max-width: 560px;
+  margin: 2.5rem auto 0;
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-weight: 300;
+  line-height: 2;
+  color: var(--white-dim);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.9s ease 0.4s;
+}
+.scene-body.reveal { opacity: 1; transform: translateY(0); }
+
+/* TIMELINE */
+.timeline {
+  margin-top: 5rem;
+  width: 100%;
+  max-width: 700px;
+  position: relative;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(201,168,76,0.3), transparent);
+  transform: translateX(-50%);
+}
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 3.5rem;
+  opacity: 0;
+  transition: all 0.8s ease;
+}
+.timeline-item.left { flex-direction: row-reverse; text-align: right; }
+.timeline-item.right { flex-direction: row; text-align: left; }
+.timeline-item.reveal { opacity: 1; }
+
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  box-shadow: 0 0 15px rgba(201,168,76,0.6);
+  margin-top: 0.4rem;
+  position: relative;
+}
+.timeline-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,168,76,0.3);
+  animation: pulseRing 2.5s ease infinite;
+}
+@keyframes pulseRing {
+  0% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
+}
+
+.timeline-text { flex: 1; }
+.timeline-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.timeline-text h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.2rem;
+  color: var(--white);
+  margin-bottom: 0.4rem;
+}
+.timeline-text p {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: rgba(240,236,228,0.55);
+  font-weight: 300;
+}
+
+/* ===================== SCENE 2 — THE TURNING POINT ===================== */
+#scene-turn {
+  background: linear-gradient(180deg, #090510 0%, var(--deep-navy) 100%);
+  flex-direction: column;
+  padding: 8rem 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.orb-gold {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+  top: 10%; left: 50%;
+  transform: translateX(-50%);
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.orb-blue {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(26,58,110,0.3) 0%, transparent 70%);
+  bottom: 5%; right: 5%;
+  animation: orbFloat 10s ease-in-out infinite reverse;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0) translateX(-50%); }
+  50% { transform: translateY(-30px) translateX(-50%); }
+}
+
+.quote-block {
+  max-width: 680px;
+  margin: 0 auto;
+  position: relative;
+  padding: 3rem 2rem;
+}
+.quote-mark {
+  font-size: 8rem;
+  line-height: 0.6;
+  color: rgba(201,168,76,0.15);
+  font-family: 'Cormorant Garamond', serif;
+  display: block;
+  margin-bottom: 1rem;
+}
+.quote-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  line-height: 1.7;
+  color: var(--white);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 1.2s ease;
+}
+.quote-text.reveal { opacity: 1; transform: translateY(0); }
+.quote-attr {
+  margin-top: 2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: all 0.8s ease 0.5s;
+}
+.quote-attr.reveal { opacity: 1; }
+
+.divider-line {
+  width: 80px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 4rem auto;
+}
+
+/* ===================== SCENE 3 — FPT JOURNEY ===================== */
+#scene-fpt {
+  background: linear-gradient(180deg, var(--deep-navy) 0%, var(--midnight) 100%);
+  flex-direction: column;
+  padding: 8rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: visible;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  max-width: 900px;
+  width: 100%;
+  margin-top: 4rem;
+}
+.card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(201,168,76,0.12);
+  border-radius: 4px;
+  padding: 2.5rem 1.8rem;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+  backdrop-filter: blur(10px);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.card:hover::before { opacity: 1; }
+.card:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(201,168,76,0.3);
+  transform: translateY(-5px) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(201,168,76,0.08);
+}
+.card.reveal { opacity: 1; transform: translateY(0); }
+
+.card-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: rgba(201,168,76,0.4);
+  margin-bottom: 1.5rem;
+}
+.card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+  color: var(--gold-light);
+  margin-bottom: 0.8rem;
+  line-height: 1.3;
+}
+.card p {
+  font-size: 0.88rem;
+  line-height: 1.9;
+  color: rgba(240,236,228,0.5);
+  font-weight: 300;
+}
+
+/* ===================== SCENE 4 — GROWTH ===================== */
+#scene-growth {
+  background: linear-gradient(180deg, var(--midnight) 0%, #05101f 100%);
+  flex-direction: column;
+  padding: 8rem 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.stat-row {
+  display: flex;
+  gap: 3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4rem;
+  max-width: 800px;
+}
+.stat-item {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+.stat-item.reveal { opacity: 1; transform: translateY(0); }
+.stat-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  color: var(--gold);
+  display: block;
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(201,168,76,0.4);
+}
+.stat-label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: rgba(201,168,76,0.5);
+  text-transform: uppercase;
+  margin-top: 0.6rem;
+}
+
+.letter-block {
+  max-width: 600px;
+  margin: 6rem auto 0;
+  text-align: left;
+  padding: 3rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(201,168,76,0.1);
+  border-left: 3px solid rgba(201,168,76,0.4);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 1s ease;
+  position: relative;
+}
+.letter-block.reveal { opacity: 1; transform: translateY(0); }
+.letter-block::before {
+  content: 'Lời em muốn nói';
+  position: absolute;
+  top: -0.7rem;
+  left: 2rem;
+  background: #05101f;
+  padding: 0 0.8rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.letter-block p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 2.1;
+  color: var(--white-dim);
+  font-weight: 300;
+}
+.letter-block p + p { margin-top: 1.2rem; }
+.letter-highlight {
+  color: var(--gold-light);
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* ===================== SCENE 5 — THAI NGUYEN ===================== */
+#scene-journey {
+  background: linear-gradient(180deg, #05101f 0%, #040b17 100%);
+  flex-direction: column;
+  padding: 8rem 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.road-visual {
+  width: 100%;
+  max-width: 700px;
+  margin: 4rem auto;
+  position: relative;
+  height: 120px;
+}
+.road-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold-light) 80%, transparent);
+  transition: width 2s ease;
+  box-shadow: 0 0 10px rgba(201,168,76,0.4);
+}
+.road-line.reveal { width: 100%; }
+.road-city {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  color: rgba(201,168,76,0.6);
+  text-transform: uppercase;
+}
+.road-city.hanoi { left: 0; text-align: left; }
+.road-city.thai-nguyen { right: 0; text-align: right; }
+.road-city span {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--white-dim);
+  letter-spacing: 0.02em;
+  margin-top: 0.3rem;
+}
+.road-dot-travel {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--gold);
+  transition: left 2.5s ease 0.3s;
+}
+.road-dot-travel.reveal { left: calc(100% - 8px); }
+
+/* ===================== SCENE 6 — FINALE ===================== */
+#scene-finale {
+  background: linear-gradient(180deg, #040b17 0%, #020509 100%);
+  flex-direction: column;
+  padding: 8rem 2rem 6rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.finale-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: finalePulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes finalePulse {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+}
+
+.names-block {
+  position: relative;
+  margin: 4rem auto;
+  max-width: 700px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 1.2s ease;
+}
+.names-block.reveal { opacity: 1; transform: translateY(0); }
+
+.and-symbol {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(3rem, 10vw, 7rem);
+  color: rgba(201,168,76,0.2);
+  line-height: 0.8;
+  display: block;
+  margin: 1rem 0;
+  text-shadow: 0 0 60px rgba(201,168,76,0.3);
+}
+
+.groom-name, .bride-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 6vw, 3.5rem);
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+.groom-name { color: var(--white); }
+.bride-name { color: var(--gold-pale); }
+
+.wedding-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-top: 2rem;
+  display: block;
+}
+
+.vow-text {
+  max-width: 580px;
+  margin: 4rem auto 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  line-height: 1.9;
+  color: var(--white-dim);
+  font-weight: 300;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 1s ease 0.3s;
+}
+.vow-text.reveal { opacity: 1; transform: translateY(0); }
+
+.signature-block {
+  margin-top: 5rem;
+  opacity: 0;
+  transition: all 1s ease 0.6s;
+}
+.signature-block.reveal { opacity: 1; }
+.signature-from {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  color: rgba(201,168,76,0.4);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.signature-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.8rem;
+  color: var(--gold-light);
+  font-weight: 300;
+}
+.signature-year {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: rgba(201,168,76,0.3);
+  margin-top: 0.5rem;
+}
+
+/* PETAL ANIMATION */
+.petal {
+  position: absolute;
+  width: 6px; height: 10px;
+  background: rgba(201,168,76,0.3);
+  border-radius: 50% 0 50% 0;
+  pointer-events: none;
+  animation: petalFall linear infinite;
+  opacity: 0;
+}
+@keyframes petalFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 0.6; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===================== MOBILE ===================== */
+@media (max-width: 600px) {
+  .timeline::before { left: 20px; }
+  .timeline-item { flex-direction: row !important; text-align: left !important; }
+  .timeline-item .timeline-text { flex: 1; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .stat-row { gap: 2rem; }
+  .road-visual { height: 160px; }
+  .road-city.thai-nguyen { top: 80px; right: 0; }
+  .road-city.hanoi { top: -20px; }
+  .enter-btn { padding: 0.8rem 2rem; }
+  .letter-block { padding: 2rem 1.5rem; }
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+}
+
+/* SCROLL INDICATOR */
+.scroll-hint {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.scroll-hint.visible { opacity: 1; }
+.scroll-hint-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  animation: scrollLine 1.5s ease-in-out infinite;
+}
+@keyframes scrollLine {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+.scroll-hint-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  color: rgba(201,168,76,0.5);
+  text-transform: uppercase;
+}
+
+/* AUDIO BUTTON */
+.audio-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 50%;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: none;
+  transition: all 0.3s ease;
+  opacity: 0;
+  backdrop-filter: blur(10px);
+}
+.audio-btn.visible { opacity: 1; }
+.audio-btn:hover { border-color: var(--gold); box-shadow: 0 0 20px rgba(201,168,76,0.2); }
+.audio-icon { font-size: 1rem; }
+
+/* SECTION NAV DOTS */
+.nav-dots {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.nav-dots.visible { opacity: 1; }
+.nav-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.2);
+  cursor: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.nav-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: rgba(201,168,76,0.5);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-transform: uppercase;
+}
+.nav-dot:hover::after { opacity: 1; }
+.nav-dot.active { background: var(--gold); box-shadow: 0 0 10px rgba(201,168,76,0.5); }
+.nav-dot:hover { background: rgba(201,168,76,0.6); }
+
+@media (max-width: 600px) {
+  .nav-dots { display: none; }
+  .audio-btn { cursor: pointer; bottom: 1.5rem; right: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+<div class="progress-bar" id="progress-bar" style="width:0%"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- AUDIO -->
+<audio id="bg-music" loop>
+  <source src="data:audio/mpeg;base64," type="audio/mpeg">
+</audio>
+
+<!-- INTRO SCREEN -->
+<div id="scene-intro" class="scene">
+  <div class="intro-content">
+    <p class="intro-line" id="typed-line"></p>
+    <p class="intro-subtitle" id="intro-sub" style="opacity:0">Một câu chuyện có thật &nbsp;·&nbsp; 2026</p>
+    <button class="enter-btn" id="enter-btn" onclick="enterStory()">Bước vào câu chuyện</button>
+  </div>
+</div>
+
+<!-- SCROLL HINT -->
+<div class="scroll-hint" id="scroll-hint">
+  <div class="scroll-hint-line"></div>
+  <span class="scroll-hint-text">Cuộn xuống</span>
+</div>
+
+<!-- AUDIO TOGGLE -->
+<button class="audio-btn" id="audio-btn" onclick="toggleMusic()" title="Âm nhạc">
+  <span class="audio-icon" id="audio-icon">♪</span>
+</button>
+
+<!-- NAV DOTS -->
+<nav class="nav-dots" id="nav-dots">
+  <div class="nav-dot active" data-section="0" data-label="Mở đầu"></div>
+  <div class="nav-dot" data-section="1" data-label="Ngày tối"></div>
+  <div class="nav-dot" data-section="2" data-label="Bước ngoặt"></div>
+  <div class="nav-dot" data-section="3" data-label="FPT"></div>
+  <div class="nav-dot" data-section="4" data-label="Trưởng thành"></div>
+  <div class="nav-dot" data-section="5" data-label="Lên đường"></div>
+  <div class="nav-dot" data-section="6" data-label="Lời chúc"></div>
+</nav>
+
+<!-- MAIN SCROLL CONTENT -->
+<div id="main-content" style="display:none;">
+
+  <!-- SCENE 1: DARK DAYS -->
+  <section class="scene" id="scene-dark">
+    <div style="max-width:800px; width:100%; display:flex; flex-direction:column; align-items:center;">
+      <p class="section-eyebrow">Chương I &nbsp;·&nbsp; Những ngày không biết mình là ai</p>
+      <h2 class="scene-title">Có những đứa trẻ<br>lớn lên mà không biết<br><em>mình sẽ là gì.</em></h2>
+      <p class="scene-body">Đặng Minh Quân — 2007. Một đứa em trai lớn lên trong bóng tối của những điểm số thấp, những kỳ thi trượt, và cảm giác không thuộc về nơi nào cả.</p>
+
+      <div class="timeline">
+        <div class="timeline-item right" style="transition-delay:0.1s">
+          <div class="timeline-dot"></div>
+          <div class="timeline-text">
+            <span class="timeline-year">2019 — Lớp 7</span>
+            <h3>Bị ở lại lớp</h3>
+            <p>Một năm dừng lại giữa đường khi tất cả những người bạn cùng trang lứa bước tiếp. Cảm giác tụt hậu bắt đầu bám rễ.</p>
+          </div>
+        </div>
+        <div class="timeline-item left" style="transition-delay:0.2s">
+          <div class="timeline-dot"></div>
+          <div class="timeline-text">
+            <span class="timeline-year">2022</span>
+            <h3>Trượt kỳ thi vào lớp 10</h3>
+            <p>Tấm cửa đầu tiên vào tương lai đóng lại. Không phải vì lười biếng — mà vì chưa tìm ra con đường của mình.</p>
+          </div>
+        </div>
+        <div class="timeline-item right" style="transition-delay:0.3s">
+          <div class="timeline-dot"></div>
+          <div class="timeline-text">
+            <span class="timeline-year">Sau đó</span>
+            <h3>Mất phương hướng</h3>
+            <p>Không biết mình muốn gì. Không biết mình giỏi gì. Chỉ biết rằng — hình như mình không phù hợp với thế giới này.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 2: THE TURNING POINT -->
+  <section class="scene" id="scene-turn">
+    <div class="glow-orb orb-gold"></div>
+    <div class="glow-orb orb-blue" style="animation: orbFloat2 10s ease-in-out infinite reverse;"></div>
+
+    <div style="max-width:800px; width:100%; display:flex; flex-direction:column; align-items:center; position:relative; z-index:2;">
+      <p class="section-eyebrow">Chương II &nbsp;·&nbsp; Người duy nhất vẫn tin</p>
+      <h2 class="scene-title">Trong căn phòng im lặng đó,<br>có một người anh trai<br><em>đã không bỏ cuộc.</em></h2>
+
+      <div class="divider-line"></div>
+
+      <div class="quote-block">
+        <span class="quote-mark">"</span>
+        <p class="quote-text" id="quote1">Em thử vào ngành Công nghệ thông tin đi.<br>Anh thấy em sẽ hợp với nó.</p>
+        <p class="quote-attr" id="quote1-attr">— Đặng Đức Minh nói với em, vào năm đó.</p>
+      </div>
+
+      <div class="divider-line"></div>
+
+      <p class="scene-body" style="max-width:580px; text-align:center; transition-delay:0.2s;" id="turn-body">
+        Đặng Đức Minh — người anh trai đang bận rộn với cuộc đời riêng — đã dừng lại đủ lâu để nhìn thấy điều mà ngay cả đứa em cũng không thấy trong chính mình. Anh chỉ đường cho em vào học tại <strong style="color:var(--gold-light); font-weight:400;">FPT</strong>, ngành <strong style="color:var(--gold-light); font-weight:400;">Phát triển phần mềm</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- SCENE 3: FPT JOURNEY -->
+  <section class="scene" id="scene-fpt">
+    <div style="max-width:900px; width:100%; display:flex; flex-direction:column; align-items:center;">
+      <p class="section-eyebrow">Chương III &nbsp;·&nbsp; Hành trình FPT</p>
+      <h2 class="scene-title">Và rồi —<br><em>mọi thứ bắt đầu có nghĩa.</em></h2>
+      <p class="scene-body">Không ai ngờ đứa em từng trượt kỳ thi sẽ tìm thấy chính mình trong những dòng code.</p>
+
+      <div class="cards-grid">
+        <div class="card" style="transition-delay:0.1s">
+          <div class="card-number">01 &nbsp;·&nbsp; Khởi đầu</div>
+          <h3>Lần đầu tiên<br>tôi thấy mình đúng chỗ</h3>
+          <p>Từ ngày đầu tiên ngồi trước màn hình code, có điều gì đó trong tôi bật sáng — một cảm giác chưa từng có.</p>
+        </div>
+        <div class="card" style="transition-delay:0.2s">
+          <div class="card-number">02 &nbsp;·&nbsp; Phát triển</div>
+          <h3>Càng học,<br>càng muốn học thêm</h3>
+          <p>Ngành IT không phải một lựa chọn ngẫu nhiên nữa. Nó là nơi tôi thuộc về — điều anh đã nhìn thấy trước tôi.</p>
+        </div>
+        <div class="card" style="transition-delay:0.3s">
+          <div class="card-number">03 &nbsp;·&nbsp; Tương lai</div>
+          <h3>Tốt nghiệp<br>tháng 9 / 2026</h3>
+          <p>Đứa em năm nào trượt kỳ thi, giờ sắp cầm trong tay tấm bằng đầu tiên của cuộc đời mình.</p>
+        </div>
+        <div class="card" style="transition-delay:0.4s">
+          <div class="card-number">04 &nbsp;·&nbsp; Ghi nhận</div>
+          <h3>Anh đã thấy<br>những gì em không thấy</h3>
+          <p>Đây không chỉ là chuyện chọn ngành học. Đây là câu chuyện về một người anh đã tin vào em trước khi em tự tin vào mình.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 4: GROWTH + LETTER -->
+  <section class="scene" id="scene-growth">
+    <div style="max-width:800px; width:100%; display:flex; flex-direction:column; align-items:center;">
+      <p class="section-eyebrow">Chương IV &nbsp;·&nbsp; Đứa em hôm nay</p>
+      <h2 class="scene-title">Tôi không còn là<br><em>đứa trẻ lạc lối</em><br>ngày hôm đó nữa.</h2>
+
+      <div class="stat-row">
+        <div class="stat-item" style="transition-delay:0.1s">
+          <span class="stat-number">2026</span>
+          <span class="stat-label">Năm tốt nghiệp</span>
+        </div>
+        <div class="stat-item" style="transition-delay:0.2s">
+          <span class="stat-number" style="font-size:clamp(1.5rem,5vw,3rem); padding-top:0.5rem;">FPT</span>
+          <span class="stat-label">Cao Đẳng FPT</span>
+        </div>
+        <div class="stat-item" style="transition-delay:0.3s">
+          <span class="stat-number">19</span>
+          <span class="stat-label">Tuổi &nbsp;·&nbsp; sinh 2007</span>
+        </div>
+      </div>
+
+      <div class="letter-block" id="letter-block">
+        <p>Anh ơi — em viết những dòng này không phải để kể thành tích. Em viết vì <span class="letter-highlight">em muốn anh biết rằng em hiểu</span> — anh đã hy sinh thời gian, sự kiên nhẫn, và niềm tin của mình để đặt vào một đứa em mà ngay cả thầy cô cũng đã bỏ cuộc.</p>
+        <p>Ngày đó em không nói được. Vì em chưa có bằng chứng. <span class="letter-highlight">Bây giờ em có rồi.</span></p>
+        <p>Anh có thể yên tâm sống cuộc đời riêng của mình. <span class="letter-highlight">Em giờ không còn là đứa em ngày trước nữa.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 5: THAI NGUYEN -->
+  <section class="scene" id="scene-journey">
+    <div style="max-width:800px; width:100%; display:flex; flex-direction:column; align-items:center;">
+      <p class="section-eyebrow">Chương V &nbsp;·&nbsp; Anh lên đường</p>
+      <h2 class="scene-title">Anh đã cho em<br>đủ dũng cảm để<br><em>anh được rời đi.</em></h2>
+      <p class="scene-body">Đặng Đức Minh chọn Thái Nguyên — một chương mới trong hệ sinh thái FPT. Lần đầu tiên trong đời, Hà Nội chỉ còn lại mình em.</p>
+
+      <div class="road-visual" id="road-visual">
+        <div class="road-city hanoi">
+          <div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.25em;color:rgba(201,168,76,0.5);">HÀ NỘI</div>
+          <span>Nơi em ở lại</span>
+        </div>
+        <div class="road-line" id="road-line"></div>
+        <div class="road-dot-travel" id="road-dot"></div>
+        <div class="road-city thai-nguyen">
+          <div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.25em;color:rgba(201,168,76,0.5);">THÁI NGUYÊN</div>
+          <span>Nơi anh lập nghiệp</span>
+        </div>
+      </div>
+
+      <p class="scene-body" id="journey-body" style="margin-top:2rem; transition-delay:0.4s;">
+        Lần đầu tiên em phải tự bước đi không có anh bên cạnh. Nhưng lần này — em không sợ nữa. Vì anh đã dạy em đủ rồi.
+      </p>
+    </div>
+  </section>
+
+  <!-- SCENE 6: FINALE -->
+  <section class="scene" id="scene-finale">
+    <div class="finale-glow"></div>
+
+    <!-- Petals injected by JS -->
+
+    <div style="max-width:800px; width:100%; display:flex; flex-direction:column; align-items:center; position:relative; z-index:2;">
+      <p class="section-eyebrow">02 &nbsp;·&nbsp; 06 &nbsp;·&nbsp; 2026</p>
+
+      <div class="names-block" id="names-block">
+        <div class="groom-name">Đặng Đức Minh</div>
+        <span class="and-symbol">&</span>
+        <div class="bride-name">Nguyễn Thị Hồng Nhung</div>
+        <span class="wedding-date">Lễ Ăn Hỏi &nbsp;·&nbsp; Ngày 02 tháng 06 năm 2026</span>
+      </div>
+
+      <div class="divider-line"></div>
+
+      <p class="vow-text" id="vow-text">
+        Anh đã thay đổi cuộc đời em bằng một câu nói.<br>
+        Hôm nay, em muốn chứng kiến anh bắt đầu<br>
+        chương đẹp nhất của cuộc đời anh —<br><br>
+        <em style="color:var(--gold-light);">cùng người anh yêu thương.</em><br><br>
+        Chúc anh Đức Minh và chị Hồng Nhung<br>
+        mãi bên nhau, hạnh phúc dài lâu,<br>
+        và luôn là điểm tựa của nhau —<br>
+        như anh đã từng là điểm tựa của em.
+      </p>
+
+      <div class="divider-line" style="margin-top:5rem;"></div>
+
+      <div class="signature-block" id="sig-block">
+        <div class="signature-from">Viết bởi đứa em trai</div>
+        <div class="signature-name">Đặng Minh Quân</div>
+        <span class="signature-year">Sinh năm 2007 &nbsp;·&nbsp; Hà Nội &nbsp;·&nbsp; 2026</span>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end main-content -->
+
+<script>
+// ============================================================
+// CURSOR
+// ============================================================
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursor.style.transform = `translate(${mouseX - 4}px, ${mouseY - 4}px)`;
+});
+
+function animateRing() {
+  ringX += (mouseX - ringX) * 0.1;
+  ringY += (mouseY - ringY) * 0.1;
+  cursorRing.style.transform = `translate(${ringX - 18}px, ${ringY - 18}px)`;
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+// ============================================================
+// PARTICLES
+// ============================================================
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 1.5 + 0.3;
+    this.speedY = -(Math.random() * 0.3 + 0.1);
+    this.speedX = (Math.random() - 0.5) * 0.2;
+    this.opacity = Math.random() * 0.5 + 0.1;
+    this.life = 0;
+    this.maxLife = Math.random() * 300 + 200;
+    const r = Math.random();
+    if (r < 0.6) this.color = `rgba(201,168,76,${this.opacity})`;
+    else if (r < 0.8) this.color = `rgba(240,236,228,${this.opacity * 0.4})`;
+    else this.color = `rgba(74,127,203,${this.opacity * 0.5})`;
+  }
+  update() {
+    this.x += this.speedX; this.y += this.speedY;
+    this.life++;
+    const lifeRatio = this.life / this.maxLife;
+    this.currentOpacity = lifeRatio < 0.2 ? lifeRatio * 5 * this.opacity : lifeRatio > 0.8 ? (1 - lifeRatio) * 5 * this.opacity : this.opacity;
+    if (this.life >= this.maxLife || this.y < 0) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.currentOpacity || 0;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+for (let i = 0; i < 120; i++) { const p = new Particle(); p.life = Math.random() * p.maxLife; particles.push(p); }
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ============================================================
+// AUDIO — GENERATED PIANO TONE VIA WEB AUDIO API
+// ============================================================
+let audioCtx = null;
+let musicPlaying = false;
+let masterGain = null;
+let musicNodes = [];
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  masterGain.connect(audioCtx.destination);
+  playAmbientMusic();
+}
+
+function playAmbientMusic() {
+  // Gentle ambient piano-like arpeggio in A minor (emotional, cinematic)
+  const notes = [
+    220, 261.63, 329.63, 392, 440, 392, 329.63, 261.63,  // Am arpeggio
+    196, 261.63, 329.63, 392, 261.63, 329.63, 261.63, 196,// F maj arpeggio
+    174.61, 220, 293.66, 349.23, 220, 293.66, 220, 174.61, // C arpeggio
+    164.81, 220, 277.18, 329.63, 220, 277.18, 220, 164.81  // E arpeggio
+  ];
+  const beatDuration = 0.45;
+  let startTime = audioCtx.currentTime + 0.1;
+
+  function scheduleLoop() {
+    notes.forEach((freq, i) => {
+      const t = startTime + i * beatDuration;
+      const osc = audioCtx.createOscillator();
+      const envGain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(800 + freq * 1.5, t);
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+      osc.frequency.setTargetAtTime(freq * 0.998, t + 0.05, 0.3);
+
+      // Add subtle 2nd harmonic
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(freq * 2, t);
+      gain2.gain.setValueAtTime(0.08, t);
+      osc2.connect(gain2);
+      gain2.connect(envGain);
+
+      envGain.gain.setValueAtTime(0, t);
+      envGain.gain.linearRampToValueAtTime(0.18, t + 0.04);
+      envGain.gain.exponentialRampToValueAtTime(0.001, t + beatDuration * 2.5);
+
+      osc.connect(filter);
+      filter.connect(envGain);
+      envGain.connect(masterGain);
+
+      osc.start(t); osc.stop(t + beatDuration * 3);
+      osc2.start(t); osc2.stop(t + beatDuration * 3);
+
+      musicNodes.push(osc, osc2);
+    });
+
+    // Also add a gentle pad/drone
+    const droneFreq = 110;
+    const drone = audioCtx.createOscillator();
+    const droneGain = audioCtx.createGain();
+    const droneFilter = audioCtx.createBiquadFilter();
+    droneFilter.type = 'lowpass';
+    droneFilter.frequency.setValueAtTime(300, startTime);
+    drone.type = 'sine';
+    drone.frequency.setValueAtTime(droneFreq, startTime);
+    droneGain.gain.setValueAtTime(0, startTime);
+    droneGain.gain.linearRampToValueAtTime(0.06, startTime + 2);
+    droneGain.gain.setValueAtTime(0.06, startTime + notes.length * beatDuration - 2);
+    droneGain.gain.linearRampToValueAtTime(0, startTime + notes.length * beatDuration);
+    drone.connect(droneFilter); droneFilter.connect(droneGain); droneGain.connect(masterGain);
+    drone.start(startTime); drone.stop(startTime + notes.length * beatDuration);
+
+    startTime += notes.length * beatDuration;
+    loopTimeout = setTimeout(scheduleLoop, (notes.length * beatDuration - 2) * 1000);
+  }
+  scheduleLoop();
+}
+
+let loopTimeout;
+function toggleMusic() {
+  if (!audioCtx) initAudio();
+  if (!musicPlaying) {
+    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
+    musicPlaying = true;
+    document.getElementById('audio-icon').textContent = '♫';
+  } else {
+    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+    musicPlaying = false;
+    document.getElementById('audio-icon').textContent = '♪';
+  }
+}
+
+// ============================================================
+// TYPEWRITER
+// ============================================================
+const lines = [
+  "Có những người không sinh ra\nđể thay đổi thế giới...",
+  "\n\nmà để thay đổi cuộc đời\ncủa một người."
+];
+
+function typeLines(lines, el, speed, doneCb) {
+  const full = lines.join('');
+  let i = 0;
+  el.innerHTML = '<span class="typed-text"></span><span class="cursor-blink"></span>';
+  const span = el.querySelector('.typed-text');
+  el.style.opacity = '1';
+
+  function type() {
+    if (i < full.length) {
+      const ch = full[i];
+      span.innerHTML += ch === '\n' ? '<br>' : ch;
+      i++;
+      setTimeout(type, ch === '\n' ? speed * 3 : speed + Math.random() * 20);
+    } else {
+      setTimeout(() => {
+        el.querySelector('.cursor-blink').style.display = 'none';
+        if (doneCb) doneCb();
+      }, 800);
+    }
+  }
+  type();
+}
+
+// Start typewriter on load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    typeLines(lines, document.getElementById('typed-line'), 45, () => {
+      document.getElementById('intro-sub').style.animation = 'fadeInUp 1s ease forwards';
+      document.getElementById('intro-sub').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('intro-sub').style.opacity = '1';
+        setTimeout(() => {
+          document.getElementById('enter-btn').classList.add('visible');
+        }, 600);
+      }, 100);
+    });
+  }, 500);
+});
+
+// ============================================================
+// ENTER STORY
+// ============================================================
+function enterStory() {
+  initAudio();
+  masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 2);
+  musicPlaying = true;
+  document.getElementById('audio-icon').textContent = '♫';
+
+  const intro = document.getElementById('scene-intro');
+  intro.classList.add('hidden');
+
+  setTimeout(() => {
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('scroll-hint').classList.add('visible');
+    document.getElementById('audio-btn').classList.add('visible');
+    document.getElementById('nav-dots').classList.add('visible');
+    createPetals();
+    initScrollObserver();
+    initScrollProgress();
+    window.scrollTo(0, 0);
+  }, 800);
+}
+
+// ============================================================
+// SCROLL REVEAL
+// ============================================================
+function initScrollObserver() {
+  const targets = document.querySelectorAll(
+    '.section-eyebrow, .scene-title, .scene-body, .timeline-item, .card, .quote-text, .quote-attr, .stat-item, #letter-block, #vow-text, #sig-block, #names-block, #journey-body, #turn-body'
+  );
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal');
+      }
+    });
+  }, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
+
+  targets.forEach(t => observer.observe(t));
+
+  // Road animation
+  const roadObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.getElementById('road-line').classList.add('reveal');
+        document.getElementById('road-dot').classList.add('reveal');
+      }
+    });
+  }, { threshold: 0.4 });
+  const rv = document.getElementById('road-visual');
+  if (rv) roadObserver.observe(rv);
+}
+
+// ============================================================
+// SCROLL PROGRESS + NAV DOTS
+// ============================================================
+function initScrollProgress() {
+  const bar = document.getElementById('progress-bar');
+  const sections = ['scene-dark','scene-turn','scene-fpt','scene-growth','scene-journey','scene-finale'];
+  const dots = document.querySelectorAll('.nav-dot');
+
+  window.addEventListener('scroll', () => {
+    const scrollPct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    bar.style.width = (scrollPct * 100) + '%';
+
+    // Nav dots
+    let current = 0;
+    sections.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.5) current = i + 1;
+    });
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', parseInt(d.dataset.section) === current);
+    });
+
+    // Scroll hint
+    if (window.scrollY > 100) {
+      document.getElementById('scroll-hint').classList.remove('visible');
+    }
+  });
+}
+
+// ============================================================
+// PETALS
+// ============================================================
+function createPetals() {
+  const finale = document.getElementById('scene-finale');
+  for (let i = 0; i < 20; i++) {
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    petal.style.left = Math.random() * 100 + '%';
+    petal.style.animationDuration = (Math.random() * 8 + 6) + 's';
+    petal.style.animationDelay = (Math.random() * 10) + 's';
+    petal.style.width = (Math.random() * 5 + 4) + 'px';
+    petal.style.height = (Math.random() * 8 + 6) + 'px';
+    const r = Math.random();
+    if (r < 0.5) petal.style.background = `rgba(201,168,76,${Math.random() * 0.3 + 0.1})`;
+    else petal.style.background = `rgba(240,236,228,${Math.random() * 0.2 + 0.05})`;
+    finale.appendChild(petal);
+  }
+}
+
+// ============================================================
+// ORB custom keyframe for blue orb (no transform x offset)
+// ============================================================
+const styleExtra = document.createElement('style');
+styleExtra.textContent = `
+@keyframes orbFloat2 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30px); }
+}
+.glow-orb.orb-blue { animation: orbFloat2 10s ease-in-out infinite reverse !important; }
+`;
+document.head.appendChild(styleExtra);
+</script>
+</body>
+</html>
