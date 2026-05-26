@@ -334,11 +334,15 @@ body {
   width: 300px; height: 300px;
   background: radial-gradient(circle, rgba(26,58,110,0.3) 0%, transparent 70%);
   bottom: 5%; right: 5%;
-  animation: orbFloat 10s ease-in-out infinite reverse;
+  animation: orbFloat2 10s ease-in-out infinite reverse;
 }
 @keyframes orbFloat {
   0%, 100% { transform: translateY(0) translateX(-50%); }
   50% { transform: translateY(-30px) translateX(-50%); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30px); }
 }
 
 .quote-block {
@@ -855,9 +859,9 @@ body {
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursor-ring"></div>
 
-<!-- AUDIO -->
+<!-- AUDIO: sử dụng file nhạc thật You Raise Me Up -->
 <audio id="bg-music" loop>
-  <source src="data:audio/mpeg;base64," type="audio/mpeg">
+  <source src="You_Raise_Me_Up_-_Westlife_Nightcore_(mp3.pm).mp3" type="audio/mpeg">
 </audio>
 
 <!-- INTRO SCREEN -->
@@ -933,7 +937,7 @@ body {
   <!-- SCENE 2: THE TURNING POINT -->
   <section class="scene" id="scene-turn">
     <div class="glow-orb orb-gold"></div>
-    <div class="glow-orb orb-blue" style="animation: orbFloat2 10s ease-in-out infinite reverse;"></div>
+    <div class="glow-orb orb-blue"></div>
 
     <div style="max-width:800px; width:100%; display:flex; flex-direction:column; align-items:center; position:relative; z-index:2;">
       <p class="section-eyebrow">Chương II &nbsp;·&nbsp; Người duy nhất vẫn tin</p>
@@ -1045,8 +1049,6 @@ body {
   <!-- SCENE 6: FINALE -->
   <section class="scene" id="scene-finale">
     <div class="finale-glow"></div>
-
-    <!-- Petals injected by JS -->
 
     <div style="max-width:800px; width:100%; display:flex; flex-direction:column; align-items:center; position:relative; z-index:2;">
       <p class="section-eyebrow">02 &nbsp;·&nbsp; 06 &nbsp;·&nbsp; 2026</p>
@@ -1162,117 +1164,25 @@ function animateParticles() {
 }
 animateParticles();
 
-  // ============================================================
-  // AUDIO — SỬA LỖI AUTOPLAY & LẶP VÒNG
-  // ============================================================
-  let audioCtx = null;
-  let musicPlaying = false;
-  let masterGain = null;
-  let musicNodes = [];
-  let loopTimeout; // thêm biến giữ timeout
+// ============================================================
+// AUDIO — DÙNG FILE MP3 THAY VÌ SYNTHESIZER
+// ============================================================
+const bgMusic = document.getElementById('bg-music');
+let musicPlaying = false;
 
-  async function initAudio() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext());
-    // resume để tránh bị suspend trên mobile
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    masterGain.connect(audioCtx.destination);
-    playAmbientMusic();
+function toggleMusic() {
+  if (!bgMusic) return;
+  if (!musicPlaying) {
+    bgMusic.volume = 0.7;
+    bgMusic.play().catch(() => {}); // autoplay có thể bị chặn, bỏ qua lỗi
+    musicPlaying = true;
+    document.getElementById('audio-icon').textContent = '♫';
+  } else {
+    bgMusic.pause();
+    musicPlaying = false;
+    document.getElementById('audio-icon').textContent = '♪';
   }
-
-  function playAmbientMusic() {
-    // xoá vòng lặp cũ nếu có
-    if (loopTimeout) clearTimeout(loopTimeout);
-
-    const notes = [
-      220, 261.63, 329.63, 392, 440, 392, 329.63, 261.63,
-      196, 261.63, 329.63, 392, 261.63, 329.63, 261.63, 196,
-      174.61, 220, 293.66, 349.23, 220, 293.66, 220, 174.61,
-      164.81, 220, 277.18, 329.63, 220, 277.18, 220, 164.81
-    ];
-    const beatDuration = 0.45;
-    let startTime = audioCtx.currentTime + 0.1;
-
-    function scheduleLoop() {
-      notes.forEach((freq, i) => {
-        const t = startTime + i * beatDuration;
-        const osc = audioCtx.createOscillator();
-        const envGain = audioCtx.createGain();
-        const filter = audioCtx.createBiquadFilter();
-
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(800 + freq * 1.5, t);
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, t);
-        osc.frequency.setTargetAtTime(freq * 0.998, t + 0.05, 0.3);
-
-        const osc2 = audioCtx.createOscillator();
-        const gain2 = audioCtx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(freq * 2, t);
-        gain2.gain.setValueAtTime(0.08, t);
-        osc2.connect(gain2);
-        gain2.connect(envGain);
-
-        envGain.gain.setValueAtTime(0, t);
-        envGain.gain.linearRampToValueAtTime(0.18, t + 0.04);
-        envGain.gain.exponentialRampToValueAtTime(0.001, t + beatDuration * 2.5);
-
-        osc.connect(filter);
-        filter.connect(envGain);
-        envGain.connect(masterGain);
-
-        osc.start(t); osc.stop(t + beatDuration * 3);
-        osc2.start(t); osc2.stop(t + beatDuration * 3);
-
-        musicNodes.push(osc, osc2);
-      });
-
-      const droneFreq = 110;
-      const drone = audioCtx.createOscillator();
-      const droneGain = audioCtx.createGain();
-      const droneFilter = audioCtx.createBiquadFilter();
-      droneFilter.type = 'lowpass';
-      droneFilter.frequency.setValueAtTime(300, startTime);
-      drone.type = 'sine';
-      drone.frequency.setValueAtTime(droneFreq, startTime);
-      droneGain.gain.setValueAtTime(0, startTime);
-      droneGain.gain.linearRampToValueAtTime(0.06, startTime + 2);
-      droneGain.gain.setValueAtTime(0.06, startTime + notes.length * beatDuration - 2);
-      droneGain.gain.linearRampToValueAtTime(0, startTime + notes.length * beatDuration);
-      drone.connect(droneFilter); droneFilter.connect(droneGain); droneGain.connect(masterGain);
-      drone.start(startTime); drone.stop(startTime + notes.length * beatDuration);
-
-      startTime += notes.length * beatDuration;
-      loopTimeout = setTimeout(scheduleLoop, (notes.length * beatDuration - 2) * 1000);
-    }
-    scheduleLoop();
-  }
-
-  function toggleMusic() {
-    if (!audioCtx) initAudio().then(() => {
-      // sau khi khởi tạo xong, tự động bật nhạc
-      if (!musicPlaying) {
-        masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
-        musicPlaying = true;
-        document.getElementById('audio-icon').textContent = '♫';
-      }
-    });
-    else {
-      if (!musicPlaying) {
-        masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
-        musicPlaying = true;
-        document.getElementById('audio-icon').textContent = '♫';
-      } else {
-        masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-        musicPlaying = false;
-        document.getElementById('audio-icon').textContent = '♪';
-      }
-    }
-  }
+}
 
 // ============================================================
 // TYPEWRITER
@@ -1325,10 +1235,8 @@ window.addEventListener('load', () => {
 // ENTER STORY
 // ============================================================
 function enterStory() {
-  initAudio();
-  masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 2);
-  musicPlaying = true;
-  document.getElementById('audio-icon').textContent = '♫';
+  // Bật nhạc khi vào câu chuyện
+  toggleMusic();
 
   const intro = document.getElementById('scene-intro');
   intro.classList.add('hidden');
@@ -1388,7 +1296,6 @@ function initScrollProgress() {
     const scrollPct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
     bar.style.width = (scrollPct * 100) + '%';
 
-    // Nav dots
     let current = 0;
     sections.forEach((id, i) => {
       const el = document.getElementById(id);
@@ -1400,7 +1307,6 @@ function initScrollProgress() {
       d.classList.toggle('active', parseInt(d.dataset.section) === current);
     });
 
-    // Scroll hint
     if (window.scrollY > 100) {
       document.getElementById('scroll-hint').classList.remove('visible');
     }
@@ -1426,19 +1332,6 @@ function createPetals() {
     finale.appendChild(petal);
   }
 }
-
-// ============================================================
-// ORB custom keyframe for blue orb (no transform x offset)
-// ============================================================
-const styleExtra = document.createElement('style');
-styleExtra.textContent = `
-@keyframes orbFloat2 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-30px); }
-}
-.glow-orb.orb-blue { animation: orbFloat2 10s ease-in-out infinite reverse !important; }
-`;
-document.head.appendChild(styleExtra);
 </script>
 </body>
 </html>
