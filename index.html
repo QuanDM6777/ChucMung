@@ -1162,110 +1162,117 @@ function animateParticles() {
 }
 animateParticles();
 
-// ============================================================
-// AUDIO — GENERATED PIANO TONE VIA WEB AUDIO API
-// ============================================================
-let audioCtx = null;
-let musicPlaying = false;
-let masterGain = null;
-let musicNodes = [];
+  // ============================================================
+  // AUDIO — SỬA LỖI AUTOPLAY & LẶP VÒNG
+  // ============================================================
+  let audioCtx = null;
+  let musicPlaying = false;
+  let masterGain = null;
+  let musicNodes = [];
+  let loopTimeout; // thêm biến giữ timeout
 
-function initAudio() {
-  if (audioCtx) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  masterGain = audioCtx.createGain();
-  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-  masterGain.connect(audioCtx.destination);
-  playAmbientMusic();
-}
+  async function initAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext());
+    // resume để tránh bị suspend trên mobile
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    masterGain.connect(audioCtx.destination);
+    playAmbientMusic();
+  }
 
-function playAmbientMusic() {
-  // Gentle ambient piano-like arpeggio in A minor (emotional, cinematic)
-  const notes = [
-    220, 261.63, 329.63, 392, 440, 392, 329.63, 261.63,  // Am arpeggio
-    196, 261.63, 329.63, 392, 261.63, 329.63, 261.63, 196,// F maj arpeggio
-    174.61, 220, 293.66, 349.23, 220, 293.66, 220, 174.61, // C arpeggio
-    164.81, 220, 277.18, 329.63, 220, 277.18, 220, 164.81  // E arpeggio
-  ];
-  const beatDuration = 0.45;
-  let startTime = audioCtx.currentTime + 0.1;
+  function playAmbientMusic() {
+    // xoá vòng lặp cũ nếu có
+    if (loopTimeout) clearTimeout(loopTimeout);
 
-  function scheduleLoop() {
-    notes.forEach((freq, i) => {
-      const t = startTime + i * beatDuration;
-      const osc = audioCtx.createOscillator();
-      const envGain = audioCtx.createGain();
-      const filter = audioCtx.createBiquadFilter();
+    const notes = [
+      220, 261.63, 329.63, 392, 440, 392, 329.63, 261.63,
+      196, 261.63, 329.63, 392, 261.63, 329.63, 261.63, 196,
+      174.61, 220, 293.66, 349.23, 220, 293.66, 220, 174.61,
+      164.81, 220, 277.18, 329.63, 220, 277.18, 220, 164.81
+    ];
+    const beatDuration = 0.45;
+    let startTime = audioCtx.currentTime + 0.1;
 
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(800 + freq * 1.5, t);
+    function scheduleLoop() {
+      notes.forEach((freq, i) => {
+        const t = startTime + i * beatDuration;
+        const osc = audioCtx.createOscillator();
+        const envGain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
 
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, t);
-      osc.frequency.setTargetAtTime(freq * 0.998, t + 0.05, 0.3);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800 + freq * 1.5, t);
 
-      // Add subtle 2nd harmonic
-      const osc2 = audioCtx.createOscillator();
-      const gain2 = audioCtx.createGain();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(freq * 2, t);
-      gain2.gain.setValueAtTime(0.08, t);
-      osc2.connect(gain2);
-      gain2.connect(envGain);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.setTargetAtTime(freq * 0.998, t + 0.05, 0.3);
 
-      envGain.gain.setValueAtTime(0, t);
-      envGain.gain.linearRampToValueAtTime(0.18, t + 0.04);
-      envGain.gain.exponentialRampToValueAtTime(0.001, t + beatDuration * 2.5);
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2, t);
+        gain2.gain.setValueAtTime(0.08, t);
+        osc2.connect(gain2);
+        gain2.connect(envGain);
 
-      osc.connect(filter);
-      filter.connect(envGain);
-      envGain.connect(masterGain);
+        envGain.gain.setValueAtTime(0, t);
+        envGain.gain.linearRampToValueAtTime(0.18, t + 0.04);
+        envGain.gain.exponentialRampToValueAtTime(0.001, t + beatDuration * 2.5);
 
-      osc.start(t); osc.stop(t + beatDuration * 3);
-      osc2.start(t); osc2.stop(t + beatDuration * 3);
+        osc.connect(filter);
+        filter.connect(envGain);
+        envGain.connect(masterGain);
 
-      musicNodes.push(osc, osc2);
+        osc.start(t); osc.stop(t + beatDuration * 3);
+        osc2.start(t); osc2.stop(t + beatDuration * 3);
+
+        musicNodes.push(osc, osc2);
+      });
+
+      const droneFreq = 110;
+      const drone = audioCtx.createOscillator();
+      const droneGain = audioCtx.createGain();
+      const droneFilter = audioCtx.createBiquadFilter();
+      droneFilter.type = 'lowpass';
+      droneFilter.frequency.setValueAtTime(300, startTime);
+      drone.type = 'sine';
+      drone.frequency.setValueAtTime(droneFreq, startTime);
+      droneGain.gain.setValueAtTime(0, startTime);
+      droneGain.gain.linearRampToValueAtTime(0.06, startTime + 2);
+      droneGain.gain.setValueAtTime(0.06, startTime + notes.length * beatDuration - 2);
+      droneGain.gain.linearRampToValueAtTime(0, startTime + notes.length * beatDuration);
+      drone.connect(droneFilter); droneFilter.connect(droneGain); droneGain.connect(masterGain);
+      drone.start(startTime); drone.stop(startTime + notes.length * beatDuration);
+
+      startTime += notes.length * beatDuration;
+      loopTimeout = setTimeout(scheduleLoop, (notes.length * beatDuration - 2) * 1000);
+    }
+    scheduleLoop();
+  }
+
+  function toggleMusic() {
+    if (!audioCtx) initAudio().then(() => {
+      // sau khi khởi tạo xong, tự động bật nhạc
+      if (!musicPlaying) {
+        masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
+        musicPlaying = true;
+        document.getElementById('audio-icon').textContent = '♫';
+      }
     });
-
-    // Also add a gentle pad/drone
-    const droneFreq = 110;
-    const drone = audioCtx.createOscillator();
-    const droneGain = audioCtx.createGain();
-    const droneFilter = audioCtx.createBiquadFilter();
-    droneFilter.type = 'lowpass';
-    droneFilter.frequency.setValueAtTime(300, startTime);
-    drone.type = 'sine';
-    drone.frequency.setValueAtTime(droneFreq, startTime);
-    droneGain.gain.setValueAtTime(0, startTime);
-    droneGain.gain.linearRampToValueAtTime(0.06, startTime + 2);
-    droneGain.gain.setValueAtTime(0.06, startTime + notes.length * beatDuration - 2);
-    droneGain.gain.linearRampToValueAtTime(0, startTime + notes.length * beatDuration);
-    drone.connect(droneFilter); droneFilter.connect(droneGain); droneGain.connect(masterGain);
-    drone.start(startTime); drone.stop(startTime + notes.length * beatDuration);
-
-    startTime += notes.length * beatDuration;
-    loopTimeout = setTimeout(scheduleLoop, (notes.length * beatDuration - 2) * 1000);
+    else {
+      if (!musicPlaying) {
+        masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
+        musicPlaying = true;
+        document.getElementById('audio-icon').textContent = '♫';
+      } else {
+        masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+        musicPlaying = false;
+        document.getElementById('audio-icon').textContent = '♪';
+      }
+    }
   }
-  scheduleLoop();
-}
-
-let loopTimeout;
-function toggleMusic() {
-  if (!audioCtx) initAudio();
-  if (!musicPlaying) {
-    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
-    musicPlaying = true;
-    document.getElementById('audio-icon').textContent = '♫';
-  } else {
-    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-    musicPlaying = false;
-    document.getElementById('audio-icon').textContent = '♪';
-  }
-}
 
 // ============================================================
 // TYPEWRITER
